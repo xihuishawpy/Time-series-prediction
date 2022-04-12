@@ -59,7 +59,7 @@ class Model(object):
             inputs = Input([self.input_seq_length])
             outputs = Model(inputs, training=True, predict_seq_length=self.output_seq_length)
         else:
-            raise ValueError("unsupported use_model of {} yet".format(self.use_model))
+            raise ValueError(f"unsupported use_model of {self.use_model} yet")
 
         self.model = tf.keras.Model(inputs, outputs, name=self.use_model)
         self.loss_fn = Loss(self.use_loss)()
@@ -75,7 +75,7 @@ class Model(object):
         :return:
         """
         print("-" * 35)
-        print("Start to train {}, in {} mode".format(self.use_model, mode))
+        print(f"Start to train {self.use_model}, in {mode} mode")
         print("-" * 35)
         self.build_model(training=True)
 
@@ -84,9 +84,9 @@ class Model(object):
             self.log_writer = tf.summary.create_file_writer(self.params['log_dir'])
 
             for epoch in range(1, n_epochs + 1):
-                print("-> EPOCH {}".format(epoch))
+                print(f"-> EPOCH {epoch}")
                 epoch_loss_train, epoch_loss_valid = [], []
-                for step, (x, y) in enumerate(dataset.take(-1)):
+                for x, y in dataset.take(-1):
                     loss = self.train_step(x, y)
                     print("=> STEP %4d  lr: %.6f  loss: %4.2f" % (self.global_steps, self.optimizer_fn.lr.numpy(), loss))
 
@@ -109,7 +109,7 @@ class Model(object):
                          ]
             self.model.fit(dataset, epochs=n_epochs, callbacks=callbacks)
         else:
-            raise ValueError("Unsupported train mode: {}, choose 'eager' or 'fit'".format(mode))
+            raise ValueError(f"Unsupported train mode: {mode}, choose 'eager' or 'fit'")
 
     @tf.function
     def train_step(self, x, y):
@@ -150,8 +150,7 @@ class Model(object):
             y_pred = self.model(x, training=False)
         except:
             y_pred = self.model((x, tf.ones([tf.shape(x)[0], self.output_seq_length, 1], tf.float32)))
-        metrics = self.loss_fn(y, y_pred).numpy()
-        return metrics
+        return self.loss_fn(y, y_pred).numpy()
 
     def predict(self, x_test, model_dir, use_model='pb'):
         """
@@ -168,8 +167,7 @@ class Model(object):
             print('Load checkpoint model ...')
             model = self.model.load_weights(model_dir)
 
-        y_pred = model(x_test)  # True, None, if x_test has more elements, it should use tuple
-        return y_pred
+        return model(x_test)
 
     def export_model(self, only_pb=True):
         """
@@ -177,6 +175,6 @@ class Model(object):
         """
         if not only_pb:
             self.model.save_weights(self.params['model_dir'])
-            print("weights save in {}".format(self.params['model_dir']))
+            print(f"weights save in {self.params['model_dir']}")
         tf.saved_model.save(self.model, self.params['saved_model_dir'])
-        print("pb_model save in {}".format(self.params['saved_model_dir']))
+        print(f"pb_model save in {self.params['saved_model_dir']}")

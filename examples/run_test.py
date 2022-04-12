@@ -23,7 +23,11 @@ def main(plot=False):
     try:
         y_pred = model.predict(x.astype(np.float32), model_dir=params['saved_model_dir'])
     except:
-        y_pred = model.predict(tuple([x.astype(np.float32), np.zeros_like(y, dtype=np.float32)]), model_dir=params['saved_model_dir'])
+        y_pred = model.predict(
+            (x.astype(np.float32), np.zeros_like(y, dtype=np.float32)),
+            model_dir=params['saved_model_dir'],
+        )
+
 
     print(y_pred)
 

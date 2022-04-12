@@ -92,5 +92,4 @@ class Discriminator(tf.keras.Model):
         conv2 = tf.reshape(conv2, [x.get_shape().as_list()[0], -1])
         ln1 = tf.nn.leaky_relu(self.bn2(self.fc1(conv2)))
         ln2 = self.fc2(ln1)
-        output = tf.nn.sigmoid(ln2)
-        return output
+        return tf.nn.sigmoid(ln2)

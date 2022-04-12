@@ -93,10 +93,10 @@ class PassengerData(DataSet):
         :return: dataframe of the data
         '''
         if not os.path.exists(data_dir):
-            raise ValueError("The file {} does not exists".format(data_dir))
+            raise ValueError(f"The file {data_dir} does not exists")
 
         data = pd.read_csv(data_dir, parse_dates=parse_dates, date_parser=date_parser, skipfooter=skipfooter)
-        logging.info("input data shape : {}".format(data.shape))
+        logging.info(f"input data shape : {data.shape}")
         return data
 
     def get_examples(self, data_dir, sample=1, start_date=None, plot=False, model_dir='../weights'):
@@ -116,7 +116,7 @@ class PassengerData(DataSet):
             plt.show()
             in_len = self.params['input_seq_length']
             total_len = in_len + self.params['output_seq_length']
-            plt.plot(range(0, in_len), x[40, :, 0])
+            plt.plot(range(in_len), x[40, :, 0])
             plt.plot(range(in_len, total_len), y[40, :, 0])
             plt.show()
 
@@ -124,9 +124,8 @@ class PassengerData(DataSet):
         if sample >= 0.5:  # if sample>0.5, blindly guess it's training
             print('x:', x[:n_example].shape, ' y:', y[:n_example].shape)
             return x[:n_example], y[:n_example]
-        if sample < 0.5:  # if sample<0.5, blindly guess it's valid
-            print('x:', x[n_example:].shape, ' y:', y[n_example:].shape)
-            return x[n_example:], y[n_example:]
+        print('x:', x[n_example:].shape, ' y:', y[n_example:].shape)
+        return x[n_example:], y[n_example:]
         #for x1,y1 in zip(x,y):
             #yield x1,y1
 

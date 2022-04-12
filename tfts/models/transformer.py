@@ -62,8 +62,7 @@ class Transformer(object):
                 decoder_inputs = tf.concat([decoder_inputs, decoder_feature], axis=-1)
 
             decoder_output = self.decoder(decoder_inputs, memory, src_mask=None, training=training, predict_seq_length=predict_seq_length)
-            outputs = self.projection(decoder_output)
-            return outputs
+            return self.projection(decoder_output)
         else:
             decoder_inputs = decoder_inputs_update = tf.cast(inputs[:, -1:, 0:1], tf.float32)
 
@@ -88,14 +87,12 @@ class Transformer(object):
         decoder_embedding = self.decoder_embedding(decoder_inputs)
         with tf.name_scope("shift_targets"):
             tgt_mask = self.get_tgt_mask_bias(predict_seq_length)
-        logits = self.decoder_stack(decoder_embedding, memory, src_mask, tgt_mask, training)  # Todo：mask
-        return logits
+        return self.decoder_stack(
+            decoder_embedding, memory, src_mask, tgt_mask, training
+        )
 
     def get_src_mask(self, x, pad=0):
-        # src_mask is used to indicate the padding token
-        # for time series issue, normally we don't have padding
-        src_mask = tf.reduce_all(tf.math.equal(x, pad), axis=-1)
-        return src_mask
+        return tf.reduce_all(tf.math.equal(x, pad), axis=-1)
 
     def get_src_mask_bias(self, mask):
         attention_bias = tf.cast(mask, tf.float32)
@@ -106,8 +103,7 @@ class Transformer(object):
     def get_tgt_mask_bias(self, length):
         valid_locs = tf.linalg.band_part(tf.ones([length, length], dtype=tf.float32), -1, 0)
         valid_locs = tf.reshape(valid_locs, [1, length, length])
-        decoder_bias = -1e9 * (1.0 - valid_locs)
-        return decoder_bias
+        return -1e9 * (1.0 - valid_locs)
 
 
 class EncoderStack(tf.keras.layers.Layer):
@@ -137,7 +133,7 @@ class EncoderStack(tf.keras.layers.Layer):
 
     def call(self, encoder_inputs, training, src_mask=None):
         x = encoder_inputs
-        for n, layer in enumerate(self.layers):
+        for layer in self.layers:
             attention_layer, ffn_layer, ln_layer1, ln_layer2 = layer
             x0 = x
             x1 = attention_layer(x0)
@@ -181,7 +177,7 @@ class DecoderStack(tf.keras.layers.Layer):
     def call(self, decoder_inputs, encoder_outputs, src_mask, tgt_mask, training, cache=None):
         x = decoder_inputs
 
-        for n, layer in enumerate(self.layers):
+        for layer in self.layers:
             self_attention_layer, enc_dec_attention_layer, ffn_layer, ln_layer1, ln_layer2, ln_layer3 = layer
             x0 = x
             x1 = self_attention_layer(x0, mask=tgt_mask)

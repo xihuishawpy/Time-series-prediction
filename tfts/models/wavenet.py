@@ -35,23 +35,30 @@ class WaveNet(object):
             decoder_feature = None
 
         encoder_output, encoder_states = self.encoder(encoder_feature)
-        decoder_output = self.decoder(x,
-                                      decoder_feature,
-                                      encoder_states=encoder_states,
-                                      predict_seq_length=predict_seq_length,
-                                      teacher=teacher)
-        return decoder_output
+        return self.decoder(
+            x,
+            decoder_feature,
+            encoder_states=encoder_states,
+            predict_seq_length=predict_seq_length,
+            teacher=teacher,
+        )
 
 
 class Encoder(object):
     def __init__(self, params):
         self.params = params
-        self.conv_times = []
-        for i, (kernel_size, dilation) in enumerate(zip(self.params['kernel_sizes'], self.params['dilation_rates'])):
-            self.conv_times.append(TemporalConv(filters=2 * self.params['filters'],
-                                                kernel_size=kernel_size,
-                                                causal=True,
-                                                dilation_rate=dilation))
+        self.conv_times = [
+            TemporalConv(
+                filters=2 * self.params['filters'],
+                kernel_size=kernel_size,
+                causal=True,
+                dilation_rate=dilation,
+            )
+            for kernel_size, dilation in zip(
+                self.params['kernel_sizes'], self.params['dilation_rates']
+            )
+        ]
+
         self.dense_time1 = Dense3D(units=self.params['filters'], activation='tanh', name='encoder_dense_time1')
         self.dense_time2 = Dense3D(units=self.params['filters'] + self.params['filters'], name='encoder_dense_time2')
         self.dense_time3 = Dense3D(units=self.params['dense_hidden_size'], activation='relu', name='encoder_dense_time3')

@@ -26,8 +26,7 @@ class Unet(object):
         pool2 = self.AvgPool1D2(x)
 
         encoder_output = self.encoder([x, pool1, pool2])
-        decoder_output = self.decoder(encoder_output, predict_seq_length=predict_seq_length)
-        return decoder_output
+        return self.decoder(encoder_output, predict_seq_length=predict_seq_length)
 
 
 class Encoder(object):
@@ -38,24 +37,24 @@ class Encoder(object):
         x, pool1, pool2 = input_tensor
 
         x = conv_br(x, units, kernel_size, 1, 1)  # => batch_size * sequence_length * units
-        for i in range(depth):
+        for _ in range(depth):
             x = re_block(x, units, kernel_size, 1, 1)
         out_0 = x  # => batch_size * sequence_length * units
 
         x = conv_br(x, units * 2, kernel_size, 2, 1)
-        for i in range(depth):
+        for _ in range(depth):
             x = re_block(x, units * 2, kernel_size, 1,1)
         out_1 = x  # => batch_size * sequence/2 * units*2
 
         x = Concatenate()([x, pool1])
         x = conv_br(x, units * 3, kernel_size, 2, 1)
-        for i in range(depth):
+        for _ in range(depth):
             x = re_block(x, units * 3, kernel_size, 1, 1)
         out_2 = x  # => batch_size * sequence/2, units*3
 
         x = Concatenate()([x, pool2])
         x = conv_br(x, units * 4, kernel_size, 4, 1)
-        for i in range(depth):
+        for _ in range(depth):
             x = re_block(x, units * 4, kernel_size, 1, 1)
         return [out_0, out_1, out_2, x]
 

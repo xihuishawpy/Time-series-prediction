@@ -16,7 +16,7 @@ class Optimizer(object):
         elif self.use_optimizer == 'sgd':
             return tf.keras.optimizers.SGD(lr=learning_rate)
         else:
-            raise ValueError("Not supported use_optimizer: {}".format(self.use_optimizer))
+            raise ValueError(f"Not supported use_optimizer: {self.use_optimizer}")
 
 
 class LrScheduler(object):
@@ -30,8 +30,7 @@ class LrScheduler(object):
 
     def step(self):
         self.step_count += 1
-        lr = self.scheduler(self.step_count)
-        return lr
+        return self.scheduler(self.step_count)
 
 
 class Step(tf.keras.optimizers.schedules.LearningRateSchedule):
@@ -47,7 +46,10 @@ class Step(tf.keras.optimizers.schedules.LearningRateSchedule):
         init_lr = self.params['init_learning_rate']
         lr_levels = self.params['learning_rate_levels']
         lr_steps = self.params['learning_rate_steps']
-        assert warmup_steps < self.total_steps, "warmup {}, total {}".format(warmup_steps, self.total_steps)
+        assert (
+            warmup_steps < self.total_steps
+        ), f"warmup {warmup_steps}, total {self.total_steps}"
+
 
         linear_warmup = warmup_lr + tf.cast(global_step, tf.float32) / warmup_steps * (init_lr - warmup_lr)
         learning_rate = tf.where(global_step < warmup_steps, linear_warmup, init_lr)
@@ -69,10 +71,14 @@ class Cosine(tf.keras.optimizers.schedules.LearningRateSchedule):
         init_lr = self.params['init_learning_rate']
         warmup_lr = self.params['warmup_learning_rate'] if 'warmup_learning_rate' in self.params else 0.0
         warmup_steps = self.params['warmup_steps']
-        assert warmup_steps < self.total_steps, "warmup {}, total {}".format(warmup_steps, self.total_steps)
+        assert (
+            warmup_steps < self.total_steps
+        ), f"warmup {warmup_steps}, total {self.total_steps}"
+
 
         linear_warmup = warmup_lr + tf.cast(global_step, tf.float32) / warmup_steps * (init_lr - warmup_lr)
         cosine_learning_rate = init_lr * (
                     tf.cos(np.pi * (global_step - warmup_steps) / (self.total_steps - warmup_steps)) + 1.0) / 2.0
-        learning_rate = tf.where(global_step < warmup_steps, linear_warmup, cosine_learning_rate)
-        return learning_rate
+        return tf.where(
+            global_step < warmup_steps, linear_warmup, cosine_learning_rate
+        )

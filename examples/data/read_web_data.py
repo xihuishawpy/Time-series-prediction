@@ -31,7 +31,7 @@ class WebDataReader(object):
             'agent',
             'test_data',
             'test_is_nan']
-        self.data = [np.load(os.path.join(data_dir, '{}.npy'.format(i))) for i in data_cols]
+        self.data = [np.load(os.path.join(data_dir, f'{i}.npy')) for i in data_cols]
         self.n_examples = self.data[0].shape[0]
         self.mode = mode
 
@@ -116,12 +116,11 @@ class WebDataReader(object):
         decoder_target = np.zeros(num_decode_steps)
         is_nan_decoder_target = np.zeros(num_decode_steps)
 
-        if not self.mode == 'test':
+        if self.mode != 'test':
             decoder_target = data[x_encode_len:x_encode_len + num_decode_steps]
             is_nan_decoder_target = nan_data[x_encode_len:x_encode_len + num_decode_steps]
 
-        output = encoder_feature, decoder_feature, decoder_target, is_nan_decoder_target
-        return output  # encoder_feature, decoder_feature, decoder_targets
+        return encoder_feature, decoder_feature, decoder_target, is_nan_decoder_target
 
 
 class DataLoader(object):

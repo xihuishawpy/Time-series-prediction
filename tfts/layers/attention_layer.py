@@ -13,8 +13,10 @@ class Attention(tf.keras.layers.Layer):
     """
     def __init__(self, hidden_size, num_heads, attention_dropout=0.):
         if hidden_size % num_heads:
-            raise ValueError("Hidden size ({}) must be divisible by the number of heads ({})."
-                             .format(hidden_size, num_heads))
+            raise ValueError(
+                f"Hidden size ({hidden_size}) must be divisible by the number of heads ({num_heads})."
+            )
+
         super(Attention, self).__init__()
         self.units = hidden_size
         self.num_heads = num_heads
@@ -114,8 +116,7 @@ class TokenEmbedding(tf.keras.layers.Layer):
         }
 
     def call(self, x):
-        y = tf.einsum('bsf,fk->bsk', x, self.token_weights)
-        return y
+        return tf.einsum('bsf,fk->bsk', x, self.token_weights)
 
 
 class PositionEmbedding(tf.keras.layers.Layer):

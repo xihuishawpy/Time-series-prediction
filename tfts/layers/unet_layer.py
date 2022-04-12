@@ -50,8 +50,7 @@ class SeBlock(tf.keras.layers.Layer):
         x = self.pool(x)
         x = self.fc1(x)
         x = self.fc2(x)
-        x_out = Multiply()([input, x])
-        return x_out
+        return Multiply()([input, x])
 
 
 class ReBlock(tf.keras.layers.Layer):
@@ -85,17 +84,14 @@ def conv_br(x, units, kernel_size, strides, dilation):
                          kernel_size=kernel_size,
                          strides=strides,
                          dilation=dilation)
-    out = convbr(x)
-    return out
+    return convbr(x)
 
 
 def se_block(x, units):
     seblock = SeBlock(units)
-    out = seblock(x)
-    return out
+    return seblock(x)
 
 
 def re_block(x, units, kernel_size, strides, dilation, use_se=True):
     reblock = ReBlock(units, kernel_size, strides, dilation, use_se=use_se)
-    out = reblock(x)
-    return out
+    return reblock(x)

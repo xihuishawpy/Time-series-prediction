@@ -33,9 +33,10 @@ class NBeatsNet(object):
             'general': GenericBlock
         }
 
-        self.stacks = []
-        for stack_id in range(len(self.stack_types)):
-            self.stacks.append(self.create_stack(stack_id))
+        self.stacks = [
+            self.create_stack(stack_id)
+            for stack_id in range(len(self.stack_types))
+        ]
 
     def __call__(self, x, predict_seq_length, training):
         self.forecast_length = x.get_shape().as_list()[1]

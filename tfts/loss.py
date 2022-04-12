@@ -20,7 +20,7 @@ class Loss(object):
         elif self.use_loss == 'gaussian_likelihood':
             return Gaussian()
         else:
-            raise ValueError("Not supported use_loss yet: {}".format(self.use_loss))
+            raise ValueError(f"Not supported use_loss yet: {self.use_loss}")
 
 
 class Gaussian(object):
@@ -30,6 +30,12 @@ class Gaussian(object):
 
     def __call__(self, y_true, y_pred):
         y_pred, self.sigma = y_pred
-        loss = tf.reduce_mean(0.5 * tf.math.log(self.sigma) +
-                              0.5 * tf.math.truediv(tf.math.square(y_true - y_pred), self.sigma)) + 1e-7 + 6
-        return loss
+        return (
+            tf.reduce_mean(
+                0.5 * tf.math.log(self.sigma)
+                + 0.5
+                * tf.math.truediv(tf.math.square(y_true - y_pred), self.sigma)
+            )
+            + 1e-7
+            + 6
+        )

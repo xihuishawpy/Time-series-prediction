@@ -26,13 +26,19 @@ class TCN(object):
     """
     def __init__(self, custom_model_params={}):
         self.params = params
-        self.conv_times = []
-        for i, (dilation, kernel_size) in enumerate(zip(self.params['dilation_rates'], self.params['kernel_sizes'])):
-            self.conv_times.append(ConvTime(filters=2 * self.params['filters'],
-                                            kernel_size=kernel_size,
-                                            causal=True,
-                                            dilation_rate=dilation,
-                                            activation='relu'))
+        self.conv_times = [
+            ConvTime(
+                filters=2 * self.params['filters'],
+                kernel_size=kernel_size,
+                causal=True,
+                dilation_rate=dilation,
+                activation='relu',
+            )
+            for dilation, kernel_size in zip(
+                self.params['dilation_rates'], self.params['kernel_sizes']
+            )
+        ]
+
         self.dense_time1 = Dense3D(units=self.params['filters'], name='encoder_dense_time_1')
         self.dense_time2 = Dense3D(units=self.params['filters'] + self.params['filters'], name='encoder_dense_time_2')
         self.dense_time3 = Dense3D(units=1, name='encoder_dense_time_3')

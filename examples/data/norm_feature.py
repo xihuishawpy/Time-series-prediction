@@ -16,7 +16,7 @@ class FeatureNorm(object):
         elif self.type == 'minmax':
             scaler = MinMaxScaler()
         else:
-            raise ValueError("Unsupported norm type yet: {}".format(self.type))
+            raise ValueError(f"Unsupported norm type yet: {self.type}")
 
         if mode == 'train':
             scaler.fit(x)

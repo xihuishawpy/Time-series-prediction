@@ -90,8 +90,7 @@ class TemporalConv(tf.keras.layers.Layer):
             # padding: 1st dim is batch, so [0,0]; 2nd dim is time, so [padding_size, 0]; 3rd dim is feature [0,0]
             input = tf.pad(input, [[0, 0], [padding_size, 0], [0, 0]])
 
-        output = self.conv(input)
-        return output
+        return self.conv(input)
 
 
 class TemporalConvAtt(tf.keras.layers.Layer):

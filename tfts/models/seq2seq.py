@@ -45,12 +45,15 @@ class Seq2seq(object):
 
         decoder_init_input = x[:, -1, 0:1]
         init_state = encoder_state
-        decoder_output = self.decoder(decoder_feature, init_state, decoder_init_input,
-                                      encoder_output=encoder_output,
-                                      predict_seq_length=predict_seq_length,
-                                      teacher=teacher,
-                                      use_attention=self.params['use_attention'])
-        return decoder_output
+        return self.decoder(
+            decoder_feature,
+            init_state,
+            decoder_init_input,
+            encoder_output=encoder_output,
+            predict_seq_length=predict_seq_length,
+            teacher=teacher,
+            use_attention=self.params['use_attention'],
+        )
 
 
 class Encoder(object):
